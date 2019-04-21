@@ -1,6 +1,8 @@
 Jodel iOS API
 =========
 
+|Build Status| |Python Versions| |PyPI Version| |License|
+
 Unofficial interface to the private API of the Jodel App. Not affiliated
 with *The Jodel Venture GmbH*.
 
@@ -80,47 +82,6 @@ but preserves the account's data (karma, etc)):
     >>> j.refresh_all_tokens()
     (200, {'expires_in': 604800, 'access_token': 'xxx', 'token_type': 'bearer', 'returning': True,
            'refresh_token': 'xxx', 'expiration_date': 1472600000, 'distinct_id': 'xxx'})
-
-
-Account Verification
-~~~~~~~~~~~~~~~~~~~~
-
-For some functionality like voting and posting (look out for error 478) 
-accounts need to be verified. 
-
-With Jodel version ``4.48`` captcha verification has been disabled. 
-However old accounts will continue to work with version ``4.47``. But if you
-ever use an old, verified account with version ``4.48`` it will become
-unverified. To this end, use the flag ``is_legacy=True`` in the 
-constructor when you instantiate an old account (on by default). New
-accounts must be created with ``is_legacy=False``.
-
-In ``4.48`` accounts can only be verified through Google Cloud Messaging.
-The steps are as follows:
-
-1. Create an Android Account: ``a = jodel_api.AndroidAccount()``
-2. Request a push token: ``a.get_push_token()``
-3. Send push token to Jodel Servers: ``j.send_push_token(token)``
-4. Log into GCM and read push messages (``verification_code``) from 
-   Jodel: ``verification = a.receive_verification_from_gcm()``
-5. Send the verification code to Jodel to verify the account:
-   ``a.verify_push(server_time, verification_code)``
-
-In ``jodel_api`` this is implemented as follows:
-
-.. code:: python
-   
-   a = jodel_api.AndroidAccount()
-   j.verify(a)
-
-Tip: If the call is successful, save the account credentials and reuse
-them later (if you get ``REGISTRATION_INVALID`` retry with another
-account):
-
-.. code:: python
-   
-   account_id, security_token = a.android_id, a.security_token
-   a2 = jodel_api.AndroidAccount(account_id, security_token)
 
 
 API calls
