@@ -2,16 +2,15 @@ language: python
 python:
   - 2.7
   - 3.3
-  - 3.7
 install:
   - python setup.py -q install
 script:
   - echo "skipping tests"
 deploy:
-  false:
+  true:
     branch: master
   distributions: sdist bdist_wheel
   user: marbink
   provider: pypi
   password:
-    secure: ""
+    secure: "WOHLDrOv1wJ8ckH5DgpEHvuLSLVEDh8gsDjXo8VC4PUEFFGVRyifs1omHevS94cmD54YLfcv0g3Ku+JZk6sQJAh9GLSa/qcxdj5jRcub/giwJspgiO15zl4BEjALK/mFRmBqZQTzqFUX4HQ//1a0PnX3bOgm/YVw9HoDNTofeaN3IdPlpunZxHhErsM15yPZ9/Mzp4etXpHcubEqIulotAJGmLp/wGB0kA0BvBgaX3gAVshZmuLRok/mRmFFxWDfs6ACyWSeW7AeiE1BME4FI6E6fBE7lFdtP7xpMkxeXfcfEbKueqiCXnXDmQL3jmm49O+H/MAaNMdw0BYTQutFyWt3u7sGHzZ+XvnUuOjG4jt4daMgOEcRsGSHhYyZJ4NiJCp5zqJgpa0Mp9jMxonUtDr1iUYXUskKaeQw6Uuy+SiGCLrJy5XdJfL6GB9Y8pVAJPLD1hFUOXB6umLdr4Hu4eSFwDjr0X8gpfC6spfyklGH6/QD1+l7xZdgGcDTrdJ0Tu2L29yIYw7UPzRmw7bXBmQo65iQPbOruaDKp6iSBpoHLysRLqhYkhk2stj0/ihzqkGLb/dN/dg445iE86uiVXwBd1mjuvo+tDcUbXun8Y9HlYUrk8Nuw0kjghwL3E93SYZFl7RFFuljRNnzNPXxfUxpSdwO4wBefENPYwkOzZ0="
