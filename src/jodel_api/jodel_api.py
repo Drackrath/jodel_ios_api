@@ -4,41 +4,39 @@ from __future__ import (absolute_import, print_function, unicode_literals)
 from builtins import input
 from future.standard_library import install_aliases
 install_aliases()
+from collections import OrderedDict
 
 import base64
 import datetime
-from hashlib import sha1
+from hashlib import sha1, sha256
 import hmac
-import json
+import simplejson as json
 import random
 import requests
 from urllib.parse import urlparse
-from jodel_api import gcmhack
+import uuid
 import time
+import decimal
 
 s = requests.Session()
-
 
 class JodelAccount:
     post_colors = ['9EC41C', 'FF9908', 'DD5F5F', '8ABDB0', '06A3CB', 'FFBA00']
 
     api_url = "https://api.go-tellm.com/api{}"
-    client_id = '81e8a76e-1e02-4d17-9ba0-8a7020261b26'
-    secret = 'HtJoqSysGFQXgFqYZRgwbpcFVAzLFSioVKTCwMcL'.encode('ascii')
-    version = '4.79.1'
-    secret_legacy = 'hyTBJcvtpDLSgGUWjybbYUNKSSoVvMcfdjtjiQvf'.encode('ascii')
-    version_legacy = '4.47.0'
+    client_id = 'cd871f92-a23f-4afc-8fff-51ff9dc9184e'
+    secret = 'ENTER_KEY_HERE'.encode('ascii')
+    version = '4.30'
 
 
     access_token = None
     device_uid = None
 
     def __init__(self, lat, lng, city, country=None, name=None, update_location=True,
-                 access_token=None, device_uid=None, refresh_token=None, distinct_id=None, expiration_date=None,
-                 is_legacy=True, **kwargs):
+                 access_token=None, device_uid=None, refresh_token=None, distinct_id=None, expiration_date=None, **kwargs):
+
         self.lat, self.lng, self.location_dict = lat, lng, self._get_location_dict(lat, lng, city, country, name)
 
-        self.is_legacy = is_legacy
         if device_uid:
             self.device_uid = device_uid
 
@@ -59,14 +57,18 @@ class JodelAccount:
 
     def _send_request(self, method, endpoint, params=None, payload=None, **kwargs):
         url = self.api_url.format(endpoint)
-        headers = {'User-Agent': 'Jodel/{} Dalvik/2.1.0 (Linux; U; Android 5.1.1; )'.format(self.version),
-                   'Accept-Encoding': 'gzip',
-                   'Content-Type': 'application/json; charset=UTF-8',
+        short_lat = round(self.lat, 4)
+        short_lng = round(self.lng, 4)
+        headers = {'User-Agent': 'Jodel/{} (iPhone; iOS 12.1.1;Scale/3.00)'.format(self.version),
+                   'Accept-Encoding': 'br, gzip, deflate',
+                   'Accept-Language': 'it-IT;q=1, en-US;q=0.9',
+                   'X-Location': '{};{}'.format(short_lat, short_lng),
+                   'Content-Type': 'application/json',
                    'Authorization': 'Bearer ' + self.access_token if self.access_token else None}
 
         for _ in range(3):
             self._sign_request(method, url, headers, params, payload)
-            resp = s.request(method=method, url=url, params=params, json=payload, headers=headers, **kwargs)
+            resp = s.request(method=method, url=url, params=params, data=json.dumps(payload, use_decimal=True).replace(": ", ":").replace(", ", ","), headers=headers, **kwargs)
             if resp.status_code != 502:  # Retry on error 502 "Bad Gateway"
                 break
 
@@ -79,53 +81,58 @@ class JodelAccount:
 
     def _sign_request(self, method, url, headers, params=None, payload=None):
         timestamp = datetime.datetime.utcnow().isoformat()[:-7] + "Z"
+        short_lat = round(self.lat, 4)
+        short_lng = round(self.lng, 4)
 
         req = [method,
                urlparse(url).netloc,
                "443",
                urlparse(url).path,
                self.access_token if self.access_token else "",
+               '{};{}'.format(short_lat, short_lng),
                timestamp,
                "%".join(sorted("{}%{}".format(key, value) for key, value in (params if params else {}).items())),
-               json.dumps(payload) if payload else ""]
+               json.dumps(payload, use_decimal=True).replace(": ", ":").replace(", ", ",") if payload else ""]
 
-        if self.is_legacy:
-            secret, version = self.secret_legacy, self.version_legacy
-        else:
-            secret, version = self.secret, self.version
+        print("%".join(req).encode("utf-8"))
+
+        secret, version = self.secret, self.version
 
         signature = hmac.new(secret, "%".join(req).encode("utf-8"), sha1).hexdigest().upper()
 
         headers['X-Authorization'] = 'HMAC ' + signature
-        headers['X-Client-Type'] = 'android_{}'.format(version)
+        headers['X-Client-Type'] = 'ios_{}'.format(version)
         headers['X-Timestamp'] = timestamp
         headers['X-Api-Version'] = '0.2'
 
     @staticmethod
-    def _get_location_dict(lat, lng, city, country=None, name=None):
-        return {"loc_accuracy": 0.0,
-                "city": city,
-                "loc_coordinates": {"lat": lat, "lng": lng},
-                "country": country if country else "DE",
-                "name": name if name else city}
+    def _get_location_dict(lat, lng, city, country=None, name=None):    
+        return OrderedDict([("loc_coordinates", {"lat": lat, "lng": lng}),
+                ("loc_accuracy", 65),
+                ("country", country if country else "IT"),
+                ("city", city)
+        ])
 
     def get_account_data(self):
         return {'expiration_date': self.expiration_date, 'distinct_id': self.distinct_id,
-                'refresh_token': self.refresh_token, 'device_uid': self.device_uid, 'access_token': self.access_token,
-                'is_legacy': self.is_legacy}
+                'refresh_token': self.refresh_token, 'device_uid': self.device_uid, 'access_token': self.access_token}
 
     def refresh_all_tokens(self, **kwargs):
         """ Creates a new account with random ID if self.device_uid is not set. Otherwise renews all tokens of the
         account with ID = self.device_uid. """
         if not self.device_uid:
             print("Creating new account.")
-            self.is_legacy = False
-            self.device_uid = ''.join(random.choice('abcdef0123456789') for _ in range(64))
+            randomUUID = str(uuid.uuid4())
+            device_uid_raw = '45C2B096-DFDA-4B1A-A404-26FB4328F358' + randomUUID.replace("-", "") + '0984FC52-FF93-44EB-BD44-3A5C521BAC5E'
+            self.device_uid = base64.b64encode(sha256(device_uid_raw.encode()).digest())
 
-        payload = {"client_id": self.client_id,
-                   "device_uid": self.device_uid,
-                   "location": self.location_dict}
-
+        payload = OrderedDict([
+            ("language", "it-IT"),
+            ("client_id", self.client_id),
+            ("location", self.location_dict),
+            ("device_uid", self.device_uid)
+        ])
+        
         resp = self._send_request("POST", "/v2/users", payload=payload, **kwargs)
         if resp[0] == 200:
             self.access_token = resp[1]['access_token']
@@ -156,34 +163,10 @@ class JodelAccount:
         return self._send_request("POST", "/v3/user/verification/push", payload=payload, **kwargs)
 
     def verify(self, android_account=None, **kwargs):
-        if not android_account:
-            android_account = gcmhack.AndroidAccount(**kwargs)
-            time.sleep(5)
-
-        token = android_account.get_push_token(**kwargs)
-
-        for i in range(3):
-            r = self.send_push_token(token, **kwargs)
-            if r[0] != 204:
-                return r
-
-            try:
-                verification = self._read_verificiation(android_account)
-
-                status, r = self.verify_push(verification['server_time'], verification['verification_code'], **kwargs)
-                if status == 200 or i == 2:
-                    return status, r
-            except gcmhack.GcmException:
-                if i == 2:
-                    raise
+        pass
 
     def _read_verificiation(self, android_account):
-        for j in range(3):
-            try:
-                return android_account.receive_verification_from_gcm()
-            except gcmhack.GcmException:
-                if j == 2:
-                    raise
+        pass
 
     # ################# #
     # GET POSTS METHODS #
