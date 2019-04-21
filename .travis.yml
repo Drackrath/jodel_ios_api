@@ -5,8 +5,10 @@ python:
   - 3.7
 install:
   - python setup.py -q install
+script:
+  - echo "skipping tests"
 deploy:
-  true:
+  false:
     branch: master
   distributions: sdist bdist_wheel
   user: marbink
