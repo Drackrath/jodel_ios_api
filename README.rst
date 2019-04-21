@@ -1,10 +1,13 @@
-Jodel API
+Jodel iOS API
 =========
 
-|Build Status| |Coverage Status| |Health| |Python Versions| |PyPI Version| |License|
-
-Inofficial interface to the private API of the Jodel App. Not affiliated
+Unofficial interface to the private API of the Jodel App. Not affiliated
 with *The Jodel Venture GmbH*.
+
+Special Thanks
+--------------
+@nborrmann (https://github.com/nborrmann/jodel_api) who developed the main core of this API. I forked its repo and adapted the code to follow iOS app behaviour. I should have not broken compatibility with its version BUT I removed 'legacy' accounts support.
+
 
 Installation
 ------------
@@ -13,14 +16,14 @@ Using pip:
 
 .. code::
 
-    pip install jodel_api
+    pip install jodel_ios_api
 
 or using setup.py:
 
 .. code::
 
-    git clone https://github.com/nborrmann/jodel_api.git
-    cd jodel_api
+    git clone https://github.com/marbink/jodel_ios_api.git
+    cd jodel_ios_api
     python setup.py install
 
 

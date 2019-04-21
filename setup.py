@@ -4,13 +4,13 @@ import os
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
     long_description = f.read()
 
-setup(name='jodel_api',
-      version='1.2.11',
-      description='Unoffical Python Interface to the Jodel API',
+setup(name='jodel_ios_api',
+      version='1.0.0',
+      description='Unoffical Python Interface to the Jodel API (based on iOS)',
       long_description=long_description,
-      url='https://github.com/nborrmann/jodel_api',
-      author='Nils Borrmann',
-      author_email='n.borrmann@googlemail.com',
+      url='https://github.com/marbink/jodel_api',
+      author='marbink',
+      author_email='github@marbink.eu',
       license='MIT',
       classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -28,8 +28,6 @@ setup(name='jodel_api',
       ],
       keywords='jodel',
       package_dir={'': 'src'},
-      install_requires=['requests', 'future', 'mock', 'varint', 'protobuf'],
+      install_requires=['requests', 'future', 'simplejson'],
       packages=find_packages('src'),
-      setup_requires=['pytest-runner', ],
-      tests_require=['pytest', 'flaky'],
       zip_safe=False)
