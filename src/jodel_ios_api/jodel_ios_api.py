@@ -68,7 +68,8 @@ class JodelAccount:
 
         for _ in range(3):
             self._sign_request(method, url, headers, params, payload)
-            resp = s.request(method=method, url=url, params=params, data=json.dumps(payload, use_decimal=True).replace(": ", ":").replace(", ", ","), headers=headers, **kwargs)
+            data = json.dumps(payload, use_decimal=True).replace(": ", ":").replace(", ", ",") if payload is not None else None
+            resp = s.request(method=method, url=url, params=params, data=data, headers=headers, **kwargs)
             if resp.status_code != 502:  # Retry on error 502 "Bad Gateway"
                 break
 
@@ -93,8 +94,6 @@ class JodelAccount:
                timestamp,
                "%".join(sorted("{}%{}".format(key, value) for key, value in (params if params else {}).items())),
                json.dumps(payload, use_decimal=True).replace(": ", ":").replace(", ", ",") if payload else ""]
-
-        print("%".join(req).encode("utf-8"))
 
         secret, version = self.secret, self.version
 

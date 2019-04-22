@@ -5,7 +5,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
     long_description = f.read()
 
 setup(name='jodel_ios_api',
-      version='1.0.0',
+      version='1.0.1',
       description='Unoffical Python Interface to the Jodel API (based on iOS)',
       long_description=long_description,
       url='https://github.com/marbink/jodel_api',

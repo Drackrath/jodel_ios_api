@@ -39,9 +39,10 @@ Calling the bare constructor creates a new account:
 
 .. code:: python
 
-    >>> import jodel_api
+    >>> import jodel_ios_api
     >>> lat, lng, city = 48.148434, 11.567867, "Munich"
-    >>> j = jodel_api.JodelAccount(lat=lat, lng=lng, city=city)
+	>>> jodel_ios_api.JodelAccount.secret = 'SECRET_HERE'.encode('ascii')
+    >>> j = jodel_ios_api.JodelAccount(lat=lat, lng=lng, city=city)
     Creating new account.
 
 ``get_account_data()`` returns all data associated with this account
