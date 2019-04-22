@@ -59,7 +59,7 @@ issues one request to update the location of the account.
 
 .. code:: python
 
-    >>> j = jodel_api.JodelAccount(lat=lat, lng=lng, city=city, access_token='xxx', expiration_date='xxx', 
+    >>> j = jodel_ios_api.JodelAccount(lat=lat, lng=lng, city=city, access_token='xxx', expiration_date='xxx', 
                                    refresh_token='xxx', distinct_id='xxx', device_uid='xxx', is_legacy=True)
     (204, '')
 
@@ -69,7 +69,7 @@ calls:
 
 .. code:: python
 
-    >>> j = jodel_api.JodelAccount(lat=lat, lng=lng, city=city, update_location=False, **account_data)
+    >>> j = jodel_ios_api.JodelAccount(lat=lat, lng=lng, city=city, update_location=False, **account_data)
 
 After ``expiration_date`` has passed, call ``refresh_access_tokens()``
 to re-authenticate. If ``refresh_access_token`` fails, use
@@ -194,11 +194,11 @@ Error Codes
 -  **429 "Too Many Requests"**: Your IP is rate-limited. Applies only
    to one specific endpoint.
 -  **477 "Signed Request Expected"**: This library should handle request
-   signing. Make sure to upgrade to the latest version of ``jodel_api``,
+   signing. Make sure to upgrade to the latest version of ``jodel_ios_api``,
    as the signing key changes every few weeks.
 -  **478 "Account not verified"**: Verify the account through GCM.
 -  **502 "Bad Gateway"**: Something went wrong server-side. This happens
-   pretty randomly. ``jodel_api`` automatically retries two times when
+   pretty randomly. ``jodel_ios_api`` automatically retries two times when
    it sees this error. If you encounter this status, the jodel servers
    are probably having issues. Try again later.
 
@@ -213,57 +213,16 @@ The Jodel API appears to have the following (IP-based) rate-limits
 
 They also hand out 403 bans if you overdo it.
 
-Tests
------
-
-Nearly all tests in ``jodel_api_test.py`` are integration tests, which
-actually hit the Jodel servers. These can fail for any number of reasons
-(eg. connectivity issues), which does not necessarily imply there is
-something wrong with this library. As this library tries to make few
-assumptions about the content of the json responses they test mostly for
-status codes, not the contents of the responses (ie. they test whether
-the API endpoints are still valid).
-
--  For the tests in ``class TestUnverifiedAccount`` a new account is
-   created on every run and they test GCM verification, posting and
-   read-only functions   
--  Tests in ``class TestLegacyVerifiedAccount`` need an already verified
-   legacy account and test if it still works.
-   To run these tests you need to verify an account by
-   solving the captcha and save its ``device_uid`` in the
-   environment variable ``JODEL_ACCOUNT_LEGACY``. Run
-   ``j.get_account_data()['device_uid']`` to get the value.
-
-   Linux:
-
-   ::
-
-       export JODEL_ACCOUNT_LEGACY=a8aa02[...]dba
-
-   Windows (you need to restart the cmd/shell for this to take effect,
-   or set it through gui):
-
-   ::
-
-       setx JODEL_ACCOUNT_LEGACY a8aa02[...]dba
-
-   If this variable is not present, these tests will be skipped.
-
-Clone the directory, install the library and run the tests with
 
 .. code:: python
 
     python setup.py test
 
-.. |Build Status| image:: https://travis-ci.org/nborrmann/jodel_api.svg?branch=master
-   :target: https://travis-ci.org/nborrmann/jodel_api
-.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/nborrmann/jodel_api.svg
-   :target: https://codecov.io/gh/nborrmann/jodel_api
-.. |Health| image:: https://landscape.io/github/nborrmann/jodel_api/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/nborrmann/jodel_api/master
-.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/jodel_api.svg
-   :target: https://pypi.python.org/pypi/jodel_api/
-.. |PyPI Version| image:: https://img.shields.io/pypi/v/jodel_api.svg
-   :target: https://pypi.python.org/pypi/jodel_api/
-.. |License| image:: https://img.shields.io/pypi/l/jodel_api.svg
-   :target: https://pypi.python.org/pypi/jodel_api/
+.. |Build Status| image:: https://travis-ci.org/marbink/jodel_ios_api.svg?branch=master
+   :target: https://travis-ci.org/marbink/jodel_ios_api
+.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/jodel_ios_api.svg
+   :target: https://pypi.python.org/pypi/jodel_ios_api/
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/jodel_ios_api.svg
+   :target: https://pypi.python.org/pypi/jodel_ios_api/
+.. |License| image:: https://img.shields.io/pypi/l/jodel_ios_api.svg
+   :target: https://pypi.python.org/pypi/jodel_ios_api/

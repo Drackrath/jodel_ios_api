@@ -9,6 +9,7 @@ script:
 deploy:
   true:
     branch: master
+    python: '3.6'
   distributions: sdist bdist_wheel
   user: marbink
   provider: pypi
